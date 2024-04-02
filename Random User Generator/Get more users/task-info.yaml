@@ -1,0 +1,357 @@
+type: edu
+files:
+  - name: src/index.html
+    visible: true
+    text: |-
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="utf-8">
+          <title>Hello, World!</title>
+      </head>
+      <body>
+      
+      </body>
+      </html>
+    learner_created: false
+  - name: test/test.js
+    visible: false
+    text: |-
+      import path from 'path';
+      import {correct, StageTest, wrong} from 'hs-test-web';
+      
+      const pagePath = path.join(import.meta.url, '../../src/index.html');
+      
+      class Test extends StageTest {
+      
+          page = this.getPage(pagePath)
+      
+          tests = [this.page.execute(() => {
+              // test #1
+              // HELPERS-->
+              // method to check if element with id exists
+              this.elementExists = (id, parent=document.body, nodeNames) => {
+                  const element = parent.querySelector(id);
+                  if (!element) return true;
+                  else return (nodeNames && !nodeNames.includes(element.nodeName.toLowerCase()));
+              };
+      
+              // method to check if element with id has right text
+              this.elementHasText = (id, parent=document.body, correctText ) => {
+                  const element = parent.querySelector(id);
+                  if (!element || !element.innerText) return true;
+      
+                  if (correctText) {
+                      return !(element.innerText.includes(correctText));
+                  }
+      
+                  return element.innerText.trim().length === 0;
+              };
+      
+              // method to check if element with id has right attribute
+              this.elementHasAttribute = (id, parent=document.body, attribute, value ) => {
+                  const element = parent.querySelector(id);
+                  if (!element) return true;
+                  const attributeValue = element.getAttribute(attribute);
+                  if (!attributeValue) return true;
+                  // console.log(attributeValue);
+                  return value && !attributeValue.includes(value);
+              };
+      
+      
+              // check profiles
+              this.checkUser = (n= 0) => {
+                  // const div = `body > div:nth-last-child(${n})`;
+                  const selector = ".user";
+                  const containerDivs = document.body.querySelectorAll(selector);
+                  if (!containerDivs || containerDivs.length === 0) {
+                      return wrong(`Can't find any element with class '${selector}'`);
+                  }
+      
+                  const div = containerDivs[n];
+                  if (!div) return wrong(`Can't find the number ${n + 1} element with class '${selector}'`);
+      
+                  const divSelector = `${selector}:nth-child(${n + 1})`;
+      
+      
+                  // h2
+                  const h2 = ".name";
+                  let combineSelectors = divSelector + " " + h2;
+                  if (this.elementExists(h2, div))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(h2, div,["h2"]))
+                      return wrong(this.wrongTagMsg(combineSelectors , "h2"));
+      
+                  if (this.elementHasText(h2, div))
+                      return wrong(this.missingTextMsg(combineSelectors));
+      
+                  // email
+                  const email = ".email";
+                  combineSelectors = divSelector + " " + email;
+                  if (this.elementExists(email, div))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(email, div, ["p"]))
+                      return wrong(this.wrongTagMsg(combineSelectors, "p"));
+      
+                  if (this.elementHasText(email, div,"Email:"))
+                      return wrong(this.wrongTextMsg(combineSelectors, "Email:"));
+      
+                  // password
+                  const password = ".password";
+                  combineSelectors = divSelector + " " + password;
+                  if (this.elementExists(password))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(password, div, ["p"]))
+                      return wrong(this.wrongTagMsg(combineSelectors, "p"));
+      
+                  if (this.elementHasText(password, div,"Password:"))
+                      return wrong(this.wrongTextMsg(combineSelectors, "Password:"));
+      
+                  // location
+                  const location = ".location";
+                  combineSelectors = divSelector + " " + location;
+                  if (this.elementExists(location))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(location, div,["p"]))
+                      return wrong(this.wrongTagMsg(combineSelectors, "p"));
+      
+                  if (this.elementHasText(location, div, "Location:"))
+                      return wrong(this.wrongTextMsg(combineSelectors, "Location:"));
+      
+                  // phone
+                  const phone = ".phone";
+                  combineSelectors = divSelector + " " + phone;
+                  if (this.elementExists(phone))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(phone, div, ["p"]))
+                      return wrong(this.wrongTagMsg(combineSelectors, "p"));
+      
+                  if (this.elementHasText(phone, div, "Phone:"))
+                      return wrong(this.wrongTextMsg(combineSelectors, "Phone:"));
+      
+                  // birthday
+                  const birthday = ".birthday";
+                  combineSelectors = divSelector + " " + birthday;
+                  if (this.elementExists(birthday))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(birthday, div, ["p"]))
+                      return wrong(this.wrongTagMsg(combineSelectors, "p"));
+      
+                  if (this.elementHasText(birthday, div, "Birthday:"))
+                      return wrong(this.wrongTextMsg(combineSelectors, "Birthday:"));
+      
+                  // photo
+                  const img = ".photo";
+                  combineSelectors = divSelector + " " + img;
+                  if (this.elementExists(img))
+                      return wrong(this.missingIdMsg(combineSelectors));
+      
+                  if (this.elementExists(img, div,["img"]))
+                      return wrong(this.wrongTagMsg(combineSelectors, "img"));
+      
+                  if (this.elementHasAttribute(img, div, "src"))
+                      return wrong(this.missingAttrMsg(combineSelectors, "src"));
+      
+                  if (this.elementHasAttribute(img, div,"alt" ))
+                      return wrong(this.missingAttrMsg(combineSelectors, "alt"));
+      
+              };
+      
+              // CONSTANTS-->
+              const theElement = "The element with the selector of";
+              // <--CONSTANTS
+      
+              // MESSAGES-->
+              this.missingIdMsg = (id) => {
+                  return `${theElement} "${id}" is missing in the body of the HTML document.`;
+              };
+              this.wrongTagMsg = (id, tag, tagAlt) => {
+                  if (tagAlt) return `${theElement} "${id}" should be a/an ${tag} or ${tagAlt} tag.`;
+                  else return `${theElement} "${id}" should be a/an ${tag} tag.`;
+              };
+              this.wrongTextMsg = (id, text) => {
+                  return `${theElement} "${id}" should have the text: "${text}".`;
+              };
+              this.missingTextMsg = (id) => {
+                  return `${theElement} "${id}" should have some text.`;
+              };
+              this.missingAttrMsg = (id, attr) => {
+                  return `${theElement} "${id}" should have the attribute "${attr}".`;
+              };
+              this.wrongParentMsg = (id, parentId) => {
+                  return `${theElement} "${id}" should be a direct child of "${parentId}".`;
+              };
+              // <--MESSAGES
+              return correct();
+      
+          }),
+              this.node.execute(async () => {
+                  // test #2
+                  // set timeout to wait for the page to load
+      
+                  await new Promise((resolve => {
+                      setTimeout(() => {
+                          resolve();
+                      }, 3000)
+                  }));
+      
+                  return correct();
+              }),
+              this.page.execute(() => {
+                  // test #3
+                  // check api call
+                  const api = "https://randomuser.me/api";
+                  const entries = performance.getEntriesByType("resource");
+                  const entry = entries.find(entry => entry.name.includes(api));
+                  if (!entry) return wrong("The correct API call is missing.");
+      
+                  return correct();
+              }),
+              this.page.execute(() => {
+                  // test #4
+                  // check tags
+      
+                  // h1
+                  if (this.elementExists("h1"))
+                      return wrong(this.missingIdMsg("h1"));
+      
+                  if (this.elementExists("body > h1"))
+                      return wrong(this.wrongParentMsg("h1", "body"));
+      
+                  if (this.elementHasText("h1", document.body, "Random User Generator"))
+                      return wrong(this.wrongTextMsg("h1", "Random User Generator"));
+      
+                  // check user
+                  if (this.checkUser()) return this.checkUser();
+      
+                  // check for button
+                  const buttonSelector = "#get-user-button";
+                  if (this.elementExists(buttonSelector))
+                      return wrong(this.missingIdMsg(buttonSelector));
+      
+                  if (this.elementExists(buttonSelector, document.body, ["button"]))
+                      return wrong(this.wrongTagMsg(buttonSelector, "button"));
+      
+                  if (this.elementHasText(buttonSelector, document.body, "Get User"))
+                      return wrong(this.missingTextMsg(buttonSelector));
+      
+                  return correct();
+              }),
+              this.node.execute(async () => {
+                  // test #5
+                  // check for button event
+                  const buttonSelector = "#get-user-button";
+                  const button = await this.page.findBySelector(buttonSelector);
+      
+                  let isEventFired = button.waitForEvent('click', 1000);
+                  await button.click();
+      
+                  if (await !isEventFired) return wrong(`Expected click event on button with ${buttonSelector} id!`);
+      
+                  await new Promise((resolve => {
+                      setTimeout(() => {
+                          resolve();
+                      }, 3000)
+                  }));
+      
+                  await this.page.evaluate(() => {
+                      return this.checkUser(1);
+                  });
+      
+                  await button.click();
+      
+                  if (await !isEventFired) return wrong(`Expected click event on button with ${buttonSelector} id!`);
+      
+                  await new Promise((resolve => {
+                      setTimeout(() => {
+                          resolve();
+                      }, 3000)
+                  }));
+      
+                  await this.page.evaluate(() => {
+                      return this.checkUser(2);
+                  });
+      
+                  return correct();
+              }),
+          ]
+      
+      }
+      
+      it("Test stage", async () => {
+          await new Test().runTests()
+      }).timeout(30000);
+    learner_created: false
+  - name: src/index.js
+    visible: true
+    text: |+
+      (async function updateUserData() {
+          const data = await getData();
+          const container = document.querySelector('.user');
+      
+          const headerEl = document.createElement('h2', );
+          headerEl.classList.add('name');
+          headerEl.textContent = `${data.name?.first} ${data.name?.last}`;
+          const imgEl = document.createElement('img');
+          imgEl.classList.add('photo');
+          imgEl.src = data.picture['large'];
+          const emailEl = document.createElement('p');
+          emailEl.classList.add('email');
+          emailEl.textContent = `Email: ${data.email}`;
+          const passwordEl = document.createElement('p');
+          passwordEl.classList.add('password');
+          passwordEl.textContent = `Password: ${data.login?.password}`;
+          const genderEl = document.createElement('p');
+          genderEl.classList.add('gender');
+          genderEl.textContent = `Gender: ${data.gender}`;
+          const phoneEl = document.createElement('p');
+          phoneEl.classList.add('phone');
+          phoneEl.textContent = `Phone: ${data.phone}`;
+          const locationEl = document.createElement('p');
+          locationEl.classList.add('location');
+          locationEl.textContent = `Location: ${data.location?.city} ${data.location?.country}`;
+          const birthdayEl = document.createElement('p');
+          birthdayEl.classList.add('birthday');
+          birthdayEl.textContent = `Birthday: ${new Date(data.dob?.date).toLocaleString().split(',')[0]}`;
+      
+          container.append(headerEl, imgEl, emailEl, passwordEl, genderEl, phoneEl, locationEl, birthdayEl);
+      
+      
+      
+      
+          //
+          // <h2 class="name"></h2>
+          // <img src="" alt="" class="photo">
+          //     <p class="email"></p>
+          //     <p class="password"></p>
+          //     <p class="gender"></p>
+          //     <p class="phone"></p>
+          //     <p class="location"></p>
+          //     <p class="birthday"></p>
+      })();
+      
+      
+      async function getData() {
+          try {
+              const { results } = await(await fetch('https://randomuser.me/api/')).json();
+              return results[0];
+          } catch (err) {
+              console.error(err);
+          }
+      };
+    
+    
+    
+    learner_created: true
+feedback_link: https://hyperskill.org/projects/372/stages/2212/implement#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Sun, 31 Mar 2024 18:06:57 UTC"
+record: 3

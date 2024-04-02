@@ -1,0 +1,252 @@
+type: edu
+files:
+  - name: src/index.html
+    visible: true
+    text: |-
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="utf-8">
+          <title>Hello, World!</title>
+      </head>
+      <body>
+      
+      </body>
+      </html>
+    learner_created: false
+  - name: test/test.js
+    visible: false
+    text: |-
+      import path from 'path';
+      import {correct, StageTest, wrong} from 'hs-test-web';
+      
+      const pagePath = path.join(import.meta.url, '../../src/index.html');
+      
+      class Test extends StageTest {
+      
+          page = this.getPage(pagePath)
+      
+          tests = [this.page.execute(() => {
+              // test #1
+              // HELPERS-->
+              // method to check if element with id exists
+              this.elementExists = (id, nodeNames) => {
+                  const element = document.querySelector(id);
+                  if (!element) return true;
+                  else return (nodeNames && !nodeNames.includes(element.nodeName.toLowerCase()));
+              };
+      
+              // method to check if element with id has right text
+              this.elementHasText = (id, correctText) => {
+                  const element = document.body.querySelector(id);
+                  if (!element || !element.innerText ) return true;
+      
+                  if (correctText) {
+                      return (element.innerText !== correctText);
+                  }
+      
+                  return element.innerText.trim().length === 0;
+              };
+      
+              // method to check if element with id has right attribute
+              this.elementHasAttribute = (id, attribute, value) => {
+                  const element = document.body.querySelector(id);
+                  if (!element) return true;
+                  const attributeValue = element.getAttribute(attribute);
+                  if (!attributeValue) return true;
+                  // console.log(attributeValue);
+                  return value && !attributeValue.includes(value);
+              };
+      
+              // check profiles
+              this.checkUser = () => {
+                  const div = `.user`;
+                  // div
+                  if (this.elementExists(div))
+                      return wrong(this.missingIdMsg(div));
+      
+                  if (this.elementExists(div, ["div"]))
+                      return wrong(this.wrongTagMsg(div, "div"));
+                  // h2
+                  const h2 = div + ` .name`;
+                  if (this.elementExists(h2))
+                      return wrong(this.missingIdMsg(h2));
+      
+                  if (this.elementExists(h2, ["h2"]))
+                      return wrong(this.wrongTagMsg(h2, "h2"));
+      
+                  if (this.elementHasText(h2))
+                      return wrong(this.missingTextMsg(h2));
+      
+                  // email
+                  const email = div + ` .email`;
+                  if (this.elementExists(email))
+                      return wrong(this.missingIdMsg(email));
+      
+                  if (this.elementExists(email, ["p"]))
+                      return wrong(this.wrongTagMsg(email, "p"));
+      
+                  if (this.elementHasText(email, "Email:"))
+                      return wrong(this.wrongTextMsg(email, "Email:"));
+      
+                  // password
+                  const password = div + ` .password`;
+                  if (this.elementExists(password))
+                      return wrong(this.missingIdMsg(password));
+      
+                  if (this.elementExists(password, ["p"]))
+                      return wrong(this.wrongTagMsg(password, "p"));
+      
+                  if (this.elementHasText(password, "Password:"))
+                      return wrong(this.wrongTextMsg(password, "Password:"));
+      
+                  // location
+                  const location = div + ` .location`;
+                  if (this.elementExists(location))
+                      return wrong(this.missingIdMsg(location));
+      
+                  if (this.elementExists(location, ["p"]))
+                      return wrong(this.wrongTagMsg(location, "p"));
+      
+                  if (this.elementHasText(location, "Location:"))
+                      return wrong(this.wrongTextMsg(location, "Location:"));
+      
+                  // phone
+                  const phone = div + ` .phone`;
+                  if (this.elementExists(phone))
+                      return wrong(this.missingIdMsg(phone));
+      
+                  if (this.elementExists(phone, ["p"]))
+                      return wrong(this.wrongTagMsg(phone, "p"));
+      
+                  if (this.elementHasText(phone, "Phone:"))
+                      return wrong(this.wrongTextMsg(phone, "Phone:"));
+      
+                  // birthday
+                  const birthday = div + ` .birthday`;
+                  if (this.elementExists(birthday))
+                      return wrong(this.missingIdMsg(birthday));
+      
+                  if (this.elementExists(birthday, ["p"]))
+                      return wrong(this.wrongTagMsg(birthday, "p"));
+      
+                  if (this.elementHasText(birthday, "Birthday:"))
+                      return wrong(this.wrongTextMsg(birthday, "Birthday:"));
+      
+                  // photo
+                  const img = div + ` .photo`;
+                  if (this.elementExists(img))
+                      return wrong(this.missingIdMsg(img));
+      
+                  if (this.elementExists(img, ["img"]))
+                      return wrong(this.wrongTagMsg(img, "img"));
+      
+                  if (this.elementHasAttribute(img, "src", ))
+                      return wrong(this.missingAttrMsg(img, "src"));
+      
+                  if (this.elementHasAttribute(img, "alt" ))
+                      return wrong(this.missingAttrMsg(img, "alt"));
+      
+              };
+      
+              // CONSTANTS-->
+              const theElement = "The element with the selector of";
+              // <--CONSTANTS
+      
+              // MESSAGES-->
+              this.missingObjKeyMsg = (key) => {
+                  return `The JSON response object in the body of the HTML does not have the key "${key}".`;
+              };
+              this.missingInnerObjKeyMsg = (key, innerObj="results") => {
+                  return `The "${innerObj}" object in the JSON response object in the body of the HTML does not have the key "${key}".`;
+              };
+              this.missingIdMsg = (id) => {
+                  return `${theElement} "${id}" is missing in the body of the HTML document.`;
+              };
+              this.wrongTagMsg = (id, tag, tagAlt) => {
+                  if (tagAlt) return `${theElement} "${id}" should be a/an ${tag} or ${tagAlt} tag.`;
+                  else return `${theElement} "${id}" should be a/an ${tag} tag.`;
+              };
+              this.wrongTextMsg = (id, text) => {
+                  return `${theElement} "${id}" should have the text: "${text}".`;
+              };
+              this.missingTextMsg = (id) => {
+                  return `${theElement} "${id}" should have some text.`;
+              };
+              this.missingAttrMsg = (id, attr) => {
+                  return `${theElement} "${id}" should have the attribute "${attr}".`;
+              };
+              this.wrongParentMsg = (id, parentId) => {
+                  return `${theElement} "${id}" should be a direct child of "${parentId}".`;
+              };
+              // <--MESSAGES
+              return correct();
+      
+          }),
+              this.node.execute(async () => {
+                  // test #2
+                  // set timeout to wait for the page to load
+      
+                  await new Promise((resolve => {
+                      setTimeout(() => {
+                          resolve();
+                      }, 3000)
+                  }));
+      
+                  return correct();
+              }),
+      
+              this.page.execute(() => {
+                  // test #3
+                  // check api call
+                  const api = "https://randomuser.me/api";
+                  const entries = performance.getEntriesByType("resource");
+                  const entry = entries.find(entry => entry.name.includes(api));
+                  if (!entry) return wrong("The correct API call is missing.");
+      
+                  return correct();
+              }),
+              this.page.execute(() => {
+                  // test #4
+                  // check tags
+                  // h1
+                  if (this.elementExists("h1"))
+                      return wrong(this.missingIdMsg("h1"));
+      
+                  if (this.elementExists("body > h1"))
+                      return wrong(this.wrongParentMsg("h1", "body"));
+      
+                  if (this.elementHasText("h1", "Random User Generator"))
+                      return wrong(this.wrongTextMsg("h1", "Random User Generator"));
+      
+                  if (this.checkUser()) return this.checkUser();
+      
+                  return correct();
+      
+              }),
+          ]
+      
+      }
+      
+      it("Test stage", async () => {
+          await new Test().runTests()
+      }).timeout(30000);
+    learner_created: false
+  - name: src/index.js
+    visible: true
+    text: |-
+      (async function getData() {
+          try {
+              const { results } = await(await fetch('https://randomuser.me/api/')).json();
+              document.body.textContent = JSON.stringify(results[0]);
+          } catch (err) {
+              console.error(err);
+          }
+      })();
+    learner_created: true
+feedback_link: https://hyperskill.org/projects/372/stages/2211/implement#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Sun, 31 Mar 2024 17:47:53 UTC"
+record: 2
